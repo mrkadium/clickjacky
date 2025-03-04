@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClickJacky</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+
+            font-family: 'Courier New', Courier, monospace;
+        }
+        body{
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            grid-template-rows: 1fr;
+            gap: 16px;
+
+            min-height: 100vh;
+            padding: 16px;
+        }
+        main{
+            overflow: hidden;
+
+            background-color: rgb(240, 240, 240);
+            border-radius: 16px;
+            border: 3px solid green;
+        }
+        main iframe{
+            width: 100%;
+            height: 100%;
+        }
+
+
+        aside{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            background-color: white;
+            border-radius: 16px;
+        }
+        aside h1{
+            margin-bottom: 16px;
+        }
+        aside h1 span{
+            font-size: 8px;
+        }
+        aside button{
+            margin-bottom: 16px;
+        }
+        aside p{
+            text-align: center;
+            font-weight: bold;
+        }
+        aside input{
+            display: block;
+            width: 100%;
+            padding: 4px 8px;
+            
+            font-size: 16px;
+        }
+        #message{
+            color: green;
+        }
+        .changeMessage{
+            height: 40px;
+            width: 100%;
+
+            /* background-color: red; */
+        }
+
+        main.failure{
+            border: 3px solid red;
+        }
+
+        #message.failure{
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <main class="failure">
+        <iframe id="page" src="" frameborder="0"></iframe>
+    </main>
+    <aside>
+        <h1>ClickJacky <span>by MO</span></h1>
+        <label for="url">Enter the URL</label>
+        <input type="url" id="url" name="url">
+        <button name="button" id="test">Test</button>
+        <p class="failure" id="message">FAIL: The site can be framed (clickjacking)</p>
+        <div class="changeMessage"></div>
+    </aside>
+
+    <script>
+        let myMain = document.querySelector('main')
+        let myIframe = document.getElementById('page')
+        let myInput = document.getElementById('url')
+        let myButton = document.getElementById('test')
+        let myMessage = document.getElementById('message')
+        let myDiv = document.querySelector('.changeMessage')
+
+        myDiv.addEventListener('dblclick', () => {
+            myMessage.classList.toggle('failure')
+            myMain.classList.toggle('failure')
+
+            if(myMessage.classList.contains('failure')) {
+                myMessage.textContent = "FAIL: The site CAN be framed (clickjacking)"
+            }
+            else{
+                myMessage.textContent = "PASS: The site CANNOT be framed"
+            }
+        })
+
+        myInput.addEventListener('keydown', (event) => {
+            if(event.keyCode === 13) testUrl()
+        })
+
+        myButton.addEventListener('click', () => {
+            testUrl()
+        })
+
+        myIframe.addEventListener('error', (e) => {
+            console.log(e);            
+        })
+
+        myIframe.addEventListener('load', (e) => {
+            try{
+                let test = myIframe.contentWindow.location.href;
+                console.log("Carga exitosa:", test);
+            }catch(error){
+                console.error("No se pudo cargar la vaina esta :(", error, myIframe);
+            }
+            // console.log("Event phase: ", e.eventPhase);            
+        })
+
+        function testUrl(){
+            let url = myInput.value
+            myIframe.setAttribute('src', url)
+        }
+    </script>
+</body>
+</html>
